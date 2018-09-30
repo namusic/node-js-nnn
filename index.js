@@ -3,9 +3,24 @@
 const http = require('http');
 const pug = require('pug');
 
-const server = http.createServer((req,res ) => {
+const auth = require('http-auth');
+const basic = auth.basic(
+  { realm: 'Enter username and password.' },
+  (username, password, callback) => {
+    callback(username === 'guest' && password === 'xaXZJQmE');
+  });
+
+const server = http.createServer(basic,(req,res ) => {
   const now = new Date();
   console.info('[' + now + '] Requested by ' + req.connection.remoteAddress);
+
+  if(req.url === '/logout') {
+    res.writeHead(401, {
+      'Content-Type': 'text/plain; charset=utf-8'
+    });
+    res.end('logout');
+    return;
+  }
   res.writeHead(200, {
     'Content-Type': 'text/html; charset=utf-8' 
 
